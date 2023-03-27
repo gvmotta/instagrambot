@@ -1,12 +1,40 @@
 from instagrapi import Client
-from instagrapi.types import StoryMention, StoryMedia, StoryLink, StoryHashtag
-from PIL import Image, ImageDraw, ImageFont
-import imageio
+from PIL import Image
+import shutil, random, os
+from datetime import datetime
+
+caminho_origem = r'C:\Users\gusta\OneDrive\Imagens\app\fotosenvios'
+caminho_destino = r'C:\Users\gusta\OneDrive\Imagens\app\3img'
+
+arquivos = os.listdir(caminho_origem)
+arquivos_aleatorios = random.sample(arquivos, 3)
+
+for arquivo in arquivos_aleatorios:
+    caminho_arquivo = os.path.join(caminho_origem, arquivo)
+    shutil.move(caminho_arquivo, caminho_destino)
+
+
+arquivos = os.listdir(caminho_destino)
+arquivos_aleatorios = random.sample(arquivos, 3)
+
+for i, nome_atual in enumerate(arquivos_aleatorios):
+    i+=1
+    if i == 1:
+        nome_novo = f"image.jpg"
+    if i == 2:
+        nome_novo = f"image2.jpg"
+    if i ==3:
+        nome_novo = f"image3.jpg"
+    caminho_atual = os.path.join(caminho_destino, nome_atual)
+    caminho_novo = os.path.join(caminho_destino, nome_novo)
+    os.rename(caminho_atual, caminho_novo)
 
 # abrir a imagem que você deseja cortar
-img = Image.open('app/image.jpg')
-img2 = Image.open('app/image2.jpg')
-img3 = Image.open('app/image3.jpg')
+img = Image.open(r'C:\Users\gusta\OneDrive\Imagens\app\3img\image.jpg')
+img2 = Image.open(r'C:\Users\gusta\OneDrive\Imagens\app\3img\image2.jpg')
+img3 = Image.open(r'C:\Users\gusta\OneDrive\Imagens\app\3img\image3.jpg')
+img4= Image.open(r'C:\Users\gusta\OneDrive\Imagens\app\plane.png')
+img4 = img4.convert("RGBA")
 
 # obter as dimensões da imagem
 largura, altura = img.size
@@ -23,72 +51,79 @@ img2_cortada = img2.crop((esquerda, topo, direita, inferior))
 img3_cortada = img3.crop((esquerda, topo, direita, inferior))
 
 # salvar a imagem cortada
-img_cortada.save('app/imagem_cortada.jpg')
-img2_cortada.save('app/imagem2_cortada.jpg')
-img3_cortada.save('app/imagem3_cortada.jpg')
+img_cortada.save(r'C:\Users\gusta\OneDrive\Imagens\app\cortada\imagem_cortada.jpg')
+img2_cortada.save(r'C:\Users\gusta\OneDrive\Imagens\app\cortada\imagem2_cortada.jpg')
+img3_cortada.save(r'C:\Users\gusta\OneDrive\Imagens\app\cortada\imagem3_cortada.jpg')
 
 # redimensionar as imagens para 1080 x 640 pixels
 largura1 = 1080
 altura1 = 640
 
-img_cortada = img.resize((largura, altura))
-img2_cortada = img2.resize((largura, altura))
-img3_cortada = img3.resize((largura, altura))
+img_cortada = img_cortada.resize((largura, altura))
+img2_cortada = img2_cortada.resize((largura, altura))
+img3_cortada = img3_cortada.resize((largura, altura))
+
 
 # criar uma nova imagem com as dimensões desejadas
-imagem_final = Image.new('RGB', (largura, altura*3))
+imagem_final = Image.new('RGB', (largura, altura*3), (255, 255, 255, 0))   
 
 # colar as imagens na nova imagem
-imagem_final.paste(img, (0, 0))
-imagem_final.paste(img2, (0, altura))
-imagem_final.paste(img3, (0, altura*2))
+imagem_final.paste(img_cortada, (0, 0))
+imagem_final.paste(img2_cortada, (0, altura))
+imagem_final.paste(img3_cortada, (0, altura*2))
+
+
 
 # redimensionar a imagem final para 1080 x 1920 pixels
 largura_final = 1080
 altura_final = 1920
 
 imagem_final = imagem_final.resize((largura_final, altura_final))
-
 # salvar a imagem final
-imagem_final.save('app/imagem_stories.jpg')
+imagem_final.save(r'C:\Users\gusta\OneDrive\Imagens\app\imagem_stories.jpg')
 
-# Defina a duração de cada frame em segundos
-duration = 0.5
+img_jpg = Image.open(r"C:\Users\gusta\OneDrive\Imagens\app\imagem_stories.jpg")  
+width, height = img_jpg.size
+x = int((width - img4.width) / 2)
+y = int((height - img4.height) / 2) + 250
 
-# Abra a imagem que você deseja adicionar o texto
-img = Image.open("imagem.jpg")
+# Cria uma nova imagem com o fundo da imagem JPG
+nova_imagem = Image.new("RGB", (width, height), (255, 255, 255))
+nova_imagem.paste(img_jpg, (0, 0))
 
-# Crie um objeto ImageDraw para desenhar na imagem
-draw = ImageDraw.Draw(img)
+# Cole a imagem com fundo transparente no centro da nova imagem
+nova_imagem.paste(img4, (x, y), img4)
 
-# Defina a fonte que você deseja usar
-font = ImageFont.truetype("Caminho/Para/A/Fonte.ttf", 50)
-
-# Crie uma lista vazia para armazenar os frames da animação
-frames = []
-
-# Crie um loop para criar cada frame da animação
-for i in range(10):
-    # Copie a imagem original para um novo objeto Image
-    frame = img.copy()
-
-    # Escreva o texto na imagem
-    draw = ImageDraw.Draw(frame)
-    draw.text((100, 100), "Envios de hoje ✈️", font=font)
-
-    # Adicione o frame à lista de frames
-    frames.append(frame)
-
-# Salve a animação em formato MP4
-output_file = "animacao.mp4"
-imageio.mimsave(output_file, frames, format='FFMPEG', fps=1/duration)
+nova_imagem.save(r"C:\Users\gusta\OneDrive\Imagens\app\result\imgstories.jpg")
 
 
 cl = Client()
-cl.login("botpythonezica", "luciane101")
+cl.login("splashsneakers.inc", "LUCIANe101@#")
 
-profile_name = cl.user_info_by_username('splashsneakers.inc')
+cl.photo_upload_to_story(path=r'C:\Users\gusta\OneDrive\Imagens\app\result\imgstories.jpg')
 
-cl.photo_upload_to_story(
-    path='app/imagem_stories.jpg', 
-    caption="Envios de hoje")
+
+# Especifique o caminho atual do arquivo JPEG
+caminho_origem = r'C:\Users\gusta\OneDrive\Imagens\app\3img'
+caminho_destino = r'C:\Users\gusta\OneDrive\Imagens\app\fotosenvios!'
+
+arquivos = os.listdir(caminho_origem)
+arquivos_aleatorios = random.sample(arquivos, 3)
+
+now = datetime.now() # current date and time
+date_time = now.strftime("%m-%d-%Y-%H-%M-%S")
+
+
+for i, nome_atual in enumerate(arquivos_aleatorios):
+    nome_novo = f"1.{date_time}{i}.jpg"
+    caminho_atual = os.path.join(caminho_origem, nome_atual)
+    caminho_novo = os.path.join(caminho_origem, nome_novo)
+    os.rename(caminho_atual, caminho_novo)
+
+arquivos = os.listdir(caminho_origem)
+arquivos_aleatorios = random.sample(arquivos, 3)
+
+# Para cada arquivo escolhido aleatoriamente, mova-o para a pasta de destino
+for arquivo in arquivos_aleatorios:
+    caminho_arquivo = os.path.join(caminho_origem, arquivo)
+    shutil.move(caminho_arquivo, caminho_destino)
